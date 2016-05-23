@@ -48,35 +48,27 @@
 #ifndef _UAPI_LIBC_COMPAT_H
 #define _UAPI_LIBC_COMPAT_H
 
-/* We have included glibc headers... */
-#if defined(__GLIBC__)
+/* We are used from userspace... */
+#if !defined(__KERNEL__)
 
-/* Coordinate with glibc netinet/in.h header. */
-#if defined(_NETINET_IN_H)
+/* Coordinate with libc netinet/in.h header. */
+#if defined(_NETINET_IN_H) && defined(__USE_MISC)
 
-/* GLIBC headers included first so don't define anything
+/* libc headers included first so don't define anything
  * that would already be defined. */
 #define __UAPI_DEF_IN6_ADDR		0
-/* The exception is the in6_addr macros which must be defined
- * if the glibc code didn't define them. This guard matches
- * the guard in glibc/inet/netinet/in.h which defines the
- * additional in6_addr macros e.g. s6_addr16, and s6_addr32. */
-#if defined(__USE_MISC) || defined (__USE_GNU)
 #define __UAPI_DEF_IN6_ADDR_ALT		0
-#else
-#define __UAPI_DEF_IN6_ADDR_ALT		1
-#endif
 #define __UAPI_DEF_SOCKADDR_IN6		0
 #define __UAPI_DEF_IPV6_MREQ		0
 #define __UAPI_DEF_IPPROTO_V6		0
 
-#else
+#else /* defined(_NETINET_IN_H) */
 
 /* Linux headers included first, and we must define everything
- * we need. The expectation is that glibc will check the
+ * we need. The expectation is that the libc will check the
  * __UAPI_DEF_* defines and adjust appropriately. */
 #define __UAPI_DEF_IN6_ADDR		1
-/* We unconditionally define the in6_addr macros and glibc must
+/* We unconditionally define the in6_addr macros and libc must
  * coordinate. */
 #define __UAPI_DEF_IN6_ADDR_ALT		1
 #define __UAPI_DEF_SOCKADDR_IN6		1
@@ -95,7 +87,7 @@
 /* If we did not see any headers from any supported C libraries,
  * or we are being included in the kernel, then define everything
  * that we need. */
-#else /* !defined(__GLIBC__) */
+#else /* !defined(__KERNEL__) */
 
 /* Definitions for in6.h */
 #define __UAPI_DEF_IN6_ADDR		1
@@ -107,6 +99,6 @@
 /* Definitions for xattr.h */
 #define __UAPI_DEF_XATTR		1
 
-#endif /* __GLIBC__ */
+#endif /* defined(__KERNEL__) */
 
 #endif /* _UAPI_LIBC_COMPAT_H */
